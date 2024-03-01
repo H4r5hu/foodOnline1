@@ -136,3 +136,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
+
+#email configuration
+EMAIL_HOST=config('EMAIL_HOST')
+EMAIL_PORT=config('EMAIL_PORT',cast=int)
+EMAIL_HOST_USER='projectmain84@gmail.com'
+EMAIL_HOST_PASSWORD='qladmsraflplgvga'
+EMAIL_USE_TLS= True
+DEFAULT_FROM_EMAIL = 'FoodVilla <projectmain84@gmail.com>'

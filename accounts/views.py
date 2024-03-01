@@ -1,10 +1,14 @@
+from base64 import urlsafe_b64decode
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages,auth
 from django.contrib.auth.decorators import login_required,user_passes_test
-from .utils import detectUser
+from .utils import detectUser, send_verification_email
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.tokens import default_token_generator
 from .models import User,UserProfile
+
+
 
 from vendor.forms import VendorForm
 from .forms import  User, UserForm
@@ -52,6 +56,10 @@ def registerUser(request):
             user=User.objects.create_user(first_name=first_name,last_name=last_name,username=username,email=email,password=password)
             user.role=User.CUSTOMER
             user.save()
+
+            # send verification email
+            
+            send_verification_email(request, user)
             messages.success(request, 'Your account has been registered successfully')
             
             
@@ -97,6 +105,9 @@ def registerVendor(request):
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile 
             vendor.save()
+               # send verification email
+            
+            send_verification_email(request, user)
             messages.success(request,'Account Created Successfully! You can now login with your credentials')
             return redirect('registerVendor')
         else:
@@ -112,6 +123,24 @@ def registerVendor(request):
     }
     
     return render(request, 'accounts/registerVendor.html', context)
+
+def activate(request, uidb64, token):
+    # Activate the user by setting the is_active status to True
+    try:
+        uid = urlsafe_b64decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Account activated successfully')
+        return redirect('myAccount')
+    else:
+        messages.error(request, 'Invalid activation link')
+        return redirect('myAccount')
+
 
 def login(request):
     if request.user.is_authenticated:
