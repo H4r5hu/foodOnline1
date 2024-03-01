@@ -1,4 +1,5 @@
-from base64 import urlsafe_b64decode
+
+from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages,auth
@@ -127,7 +128,7 @@ def registerVendor(request):
 def activate(request, uidb64, token):
     # Activate the user by setting the is_active status to True
     try:
-        uid = urlsafe_b64decode(uidb64).decode()
+        uid = urlsafe_base64_decode(uidb64).decode()
         user = User._default_manager.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
