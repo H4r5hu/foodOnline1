@@ -1,11 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'base.html'%}
 {% load static %}
-{% block content %}
+{%block content%}
 <!-- Main Section Start -->
 <div class="main-section">
-    <div class="page-section restaurant-detail-image-section" style="background: url({% if vendor.user_profile.cover_photo %}{{ vendor.user_profile.cover_photo.url }} {% else %}{% static 'images/default-cover.png' %} {% endif %})  no-repeat scroll 0 0 / cover; background-size: 100%;"></div>
-</div>
-
+    <div class="page-section restaurant-detail-image-section" style="background: url({% if vendor.user_profile.cover_photo %}{{ vendor.user_profile.cover_photo.url }} {% else %}{% static 'images/default-cover.png' %} {% endif %})  no-repeat scroll 0 0 / cover;">
         <!-- Container Start -->
         <div class="container">
             <!-- Row Start -->
@@ -17,21 +15,21 @@
                             <div class="img-holder">
                                 <figure>
                                     {% if vendor.user_profile.profile_picture %}
-                                    <img src="{{ vendor.user_profile.profile_picture.url }}" alt="">
+                                    <img src=" {{ vendor.user_profile.profile_picture.url }}" alt="">
                                     {% else %}
                                     <img src="{% static 'images/default-profile.png' %}" alt="">
                                     {% endif %}
                                 </figure>
                             </div>
                             <div class="text-holder">
-                                <span class="restaurant-title">{{ vendor.vendor_name }}</span>
+                                <span class="restaurant-title"> {{ vendor.vendor_name }}</span>
                                 <div class="text">
                                     {% if vendor.user_profile.address %}
                                     <i class="icon-location"></i>
                                     <p>{{ vendor.user_profile.address }}</p>
                                     {% endif %}
                                 </div>
-                              
+
                             </div>
                         </div>
                         <div class="delivery-timing reviews-sortby">
@@ -74,7 +72,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 sticky-sidebar">
-                  
+                 
                     <div class="filter-wrapper">
                         <div class="categories-menu">
                             <h6><i class="icon-restaurant_menu"></i>Categories</h6>
@@ -82,7 +80,7 @@
                                 {% for category in categories %}
                                 <li class="active"><a href="#" class="menu-category-link">{{ category }} </a></li>
                                 {% endfor %}
-                           
+                                
                             </ul>
                         </div>
                     </div>
@@ -101,31 +99,35 @@
                                         
                                         {% for category in categories %}
                                         <div class="element-title" id="menu-category-2">
-                                            <h5 class="text-color">{{ category }}</h5>
-                                            <span>{{ category.description }}</span>
+                                            <h5 class="text-color"> {{ category }}</h5>
+                                            <span> {{ category.description }}</span>
                                         </div>
                                         <ul>
                                             {% for food in category.fooditems.all %}
                                             <li>
-                                                <div class="image-holder"><img src="{{ food.image.url }}" alt=""></div>
+                                                <div class="image-holder"><img src=" {{ food.image.url }}" alt=""></div>
                                                 <div class="text-holder">
-                                                    <h6>{{ food }}</h6>
-                                                    <span>{{ food.description }}</span>
+                                                    <h6> {{ food }}</h6>
+                                                    <span> {{ food.description }}</span>
                                                 </div>
-                                                <span class="price"> ₹{{ food.price }}</span>
                                                 <div class="price-holder">
-                                                    <a href="#" class="decrease_cart"><i class="icon-minus text-color"></i></a>
-                                                    <label  class="id"></label>
-                                                    <a href="#" class="add_to_cart"><i class="icon-plus4 text-color"></i></a>
-                                                    
+                                                    <span class="price">£ {{ food.price }}</span>
+                                                    <a href="#" class="decrease_cart" data-id="{{ food.id }}" data-url="{% url 'decrease_cart' food.id %}" style="margin-right: 28px"><i class="icon-minus text-color"></i></a>
+                                                    <label id="qty-{{ food.id }}" >0</label>
+
+                                                    <a href="#" class="add_to_cart " data-id="{{ food.id }}" data-url="{% url 'add_to_cart' food.id %}"><i class="icon-plus4 text-color"></i></a>
+                                                   
                                                 </div>
                                             </li>
                                             {% endfor %}
-                                     
+                                      
                                         </ul>
                                         {% endfor %}
                                         
                                     </div>
+                                    {% for items in cart_items%}
+                                    <span id="qty-{{ items.fooditem.id }}" class="item_qty d-none" data-qty=" {{ items.quantity }}"> {{ items.quantity }}</span>
+                                    {% endfor %}
                                 </div>
                             </div>
                             
