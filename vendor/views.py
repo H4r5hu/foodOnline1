@@ -1,16 +1,19 @@
 
+from django.db import IntegrityError
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from menu.forms import Categoryform, FoodItemForm
 from menu.models import FoodItem, Category
 from django.shortcuts import render
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
-from .models import Vendor
-from .forms import VendorForm
+from .models import OpeningHour, Vendor
+from .forms import VendorForm, OpeningHourForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.views import check_role_vendor 
 from django.template.defaultfilters import slugify
+
 
 # Create your views here.
 
@@ -81,8 +84,10 @@ def add_category(request):
             category_name = form.cleaned_data['category_name']
             category = form.save(commit=False)
             category.vendor = get_vendor(request)
-            category.slug= slugify(category_name)
-            form.save()
+            category.save() # here the category id will be generated
+            category.slug= slugify(category_name)+'-'+str(category.id)
+            category.save()
+            # form.save()
             messages.success(request, 'Category added successfully')
             return redirect('menu_builder')
         else:
@@ -182,4 +187,31 @@ def delete_food(request, pk=None):
     messages.success(request, 'Food Item deleted successfully')
     return redirect('fooditems_by_category', food.category.id)
 
-    
+
+
+def opening_hours(request):
+    opening_hours = OpeningHour.objects.filter(vendor=get_vendor(request))
+    form = OpeningHourForm()
+    context= {
+        'form': form,
+        'opening_hours': opening_hours,
+    }
+    return render(request, 'vendor/opening_hours.html',context)
+
+def add_opening_hours(request):
+    if request.user.is_authenticated:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' and request.method == 'POST':
+           day = request.POST.get('day')
+           from_hour= request.POST.get('from_hour')
+           to_hour = request.POST.get('to_hour')
+           is_closed = request.POST.get('is_close')
+           print(day, from_hour, to_hour, is_closed)
+
+           try:
+               hour = OpeningHour.objects.create(vendor= get_vendor(request), day=day, from_hour=from_hour, to_hour= to_hour, is_closed=is_closed)
+               response = {'status': 'success'}
+           except IntegrityError as e:
+                response ={'status': 'failed'}
+                return JsonResponse(response)
+        else:
+            return HttpResponse('Invalid request')
