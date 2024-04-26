@@ -15,6 +15,7 @@ urlpatterns = [
 
     # Delete cart Item
     path('delete_cart /<int:cart_id>/', views.delete_cart, name='delete_cart'), 
+    
 
     
 ]
