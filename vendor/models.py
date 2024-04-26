@@ -2,7 +2,7 @@ from typing import Any
 from django.db import models
 from accounts.models import User, UserProfile
 from accounts.utils import send_notification
-from datetime import time
+from datetime import time, date, datetime
 # Create your models here.
 class Vendor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -17,6 +17,29 @@ class Vendor(models.Model):
 
     def __str__(self):
         return self.vendor_name
+    
+
+    
+    def is_open(self ):
+          # Check current days's opening hours 
+        today_date=date.today()
+        today = today_date.isoweekday()
+
+        current_opening_hours= OpeningHour.objects.filter(vendor=self, day= today)
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+
+        is_open = None
+        for i in current_opening_hours:
+            start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
+            end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
+            if current_time > start and current_time < end:
+                is_open = True
+                break
+            
+            else:
+                is_open = False
+        return is_open
     
     def save(self, *args, **kwargs):
         if self.pk is not None:
@@ -65,8 +88,8 @@ class OpeningHour(models.Model):
 
 
     class Meta:
-        ordering = ('day', 'from_hour')
-        unique_together = ('day', 'from_hour', 'to_hour')
+        ordering = ('day', '-from_hour')
+        unique_together = ('vendor','day', 'from_hour', 'to_hour')
 
     def __str__(self):
         return self.get_day_display()       

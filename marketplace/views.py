@@ -1,10 +1,13 @@
+from datetime import date, datetime
+
 from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import get_object_or_404, render
 from marketplace.context_processors import get_cart_counter, get_cart_amounts
 from menu.models import Category, FoodItem
 from django.db.models import Prefetch
-from vendor.models import Vendor
+import vendor
+from vendor.models import OpeningHour, Vendor
 from .models import Cart
 from django.contrib.auth.decorators import login_required
 # Create your views here.
@@ -25,6 +28,16 @@ def vendor_detail(request, vendor_slug):
                  queryset=FoodItem.objects.filter(is_available=True))
     )
 
+    
+    opening_hours= OpeningHour.objects.filter(vendor=vendor).order_by('day','-from_hour')
+    
+    # Check current days's opening hours 
+    today_date=date.today()
+    today = today_date.isoweekday()
+    
+    current_opening_hours= OpeningHour.objects.filter(vendor=vendor, day= today)
+     
+
     if request.user.is_authenticated:
         cart_items = Cart.objects.filter(user=request.user)
     else:
@@ -33,9 +46,14 @@ def vendor_detail(request, vendor_slug):
     context = {
         'vendor':vendor
         , 'categories':categories
-        , 'cart_items':cart_items
+        , 'cart_items':cart_items,
+        'opening_hours':opening_hours,
+        'current_opening_hours':current_opening_hours
+        
     }
     return render(request, 'marketplace/vendor_detail.html', context)
+
+
 
 def add_to_cart(request, food_id):
     if request.user.is_authenticated:

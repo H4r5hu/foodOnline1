@@ -151,7 +151,7 @@
                                 <div class="list-post featured">
                                     <div class="img-holder">
                                         <figure>
-                                            <a href="#">
+                                            <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
                                                 {% if vendor.user_profile.profile_picture %}
                                                 <img src="{{ vendor.user_profile.profile_picture.url }}" class="img-thumb wp-post-image" alt=""></a>
                                                 {% else %}
@@ -159,9 +159,15 @@
                                                 {% endif %}
                                             </figure>
 
-                                        <span class="restaurant-status close">
+                                            {% if vendor.open %}
+                                            <span class="restaurant-status open">
+                                                <em class="bookmarkRibbon"></em>Open
+                                            </span>
+                                            {% else %}
+                                            <span class="restaurant-status close">
                                             <em class="bookmarkRibbon"></em>Close
                                         </span>
+                                        {% endif %}
                                     </div>
 
                                     <div class="text-holder">
